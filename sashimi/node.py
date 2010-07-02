@@ -4,7 +4,7 @@ import weakref
 class Node(object):
 
     def __init__(self):
-        self.parent = None
+        self._parent = None
         self.children = []
 
     def set_parent(self, parent):
