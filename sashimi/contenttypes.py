@@ -32,7 +32,8 @@ class ContentTypeVisitor(object):
         marked_content_types = set()
         for content_type in content_types:
             info = self.portal.portal_types[content_type]
-            marked_content_types.update(info.allowed_content_types)
+            # Any content types i can contain cant be a root content type, unless i can contain myself
+            marked_content_types.update(x for x in info.allowed_content_types if x != content_type)
 
         root_content_types = content_types - marked_content_types
         for content_type in root_content_types:

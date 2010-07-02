@@ -44,3 +44,10 @@ class TestContentTypes(unittest.TestCase):
         c = ContentTypeVisitor(portal)
         retval = c.visit_types()
 
+        visitor = Mock()
+        retval.visit(visitor)
+
+        for args, kwargs in visitor.visit.call_args_list:
+            node = args[0]
+            print node.get_breadcrumb()
+
