@@ -3,29 +3,27 @@ import weakref
 
 class Node(object):
 
-    """
-    I am a node in a DAG
-
-    I retain a strong pointer to my parent object
-
-    I have a weak list of my children
-    """
-
     def __init__(self):
         self.parent = None
-        self.children = weakref.WeakValueDictionary()
+        self.children = []
 
     def set_parent(self, parent):
-        self.parent = parent
+        self.parent = weakref.ref(parent)
 
     def append_child(self, child):
-        self.children[id(child)] = child
+        self.children.append(child)
         child.set_parent(self)
 
     def visit(self, visitor):
         visitor.visit_node(self)
-        for child in self.children.iteritems():
+        for child in self.children:
             child.visit(visitor)
+
+
+class ContentTypeRoot(Node):
+
+    def get_breadcrumb(self):
+        return "Site Root"
 
 
 class ContentType(Node):
@@ -36,19 +34,28 @@ class ContentType(Node):
         self.info = info
 
     def get_breadcrumb(self):
-        if self.parent:
-            return "%s -> %s" % (self.parent.get_breadcrumb(), self.content_type)
+        if self.parent():
+            return "%s -> %s" % (self.parent().get_breadcrumb(), self.content_type)
         return self.content_type
 
 
-class Analyzer(object):
+class Content(Node):
+
+    def __init__(self, content_type):
+        self.content_type = content_type
+
+    def fuzz(self):
+        print self.content_type.get_breadcrumb()
+
+
+class ContentTypeVisitor(object):
 
     def __init__(self, portal):
         self.portal = portal
         self.visit_list = []
 
     def visit_types(self):
-        root = ContentType("/", None)
+        root = ContentTypeRoot()
 
         content_types = frozenset(self.portal.portal_types.listContentTypes())
         marked_content_types = set()
@@ -61,6 +68,8 @@ class Analyzer(object):
             info = self.portal.portal_types[content_type]
             self.visit_type(content_type, info, root)
 
+        return root
+
     def visit_type(self, content_type, info, parent):
         self.visit_list.append(content_type)
 
@@ -68,7 +77,6 @@ class Analyzer(object):
             a = self.portal.portal_types[allowed]
             c = ContentType(allowed, a)
             parent.append_child(c)
-            print c.get_breadcrumb()
 
             # Don't descend if i'm already in the visit list: should allow Foo -> Foo, but stop Foo -> Foo -> Foo
             if not allowed in self.visit_list:
@@ -76,5 +84,22 @@ class Analyzer(object):
 
         self.visit_list.remove(content_type)
 
-a = Analyzer(app.portal)
-a.visit_types()
+
+class ContentMapVisitor(object):
+
+    def __init__(self, map):
+        self.map = map
+
+    def visit_node(self, node):
+        print node.get_breadcrumb()
+
+    def fuzz(self):
+        self.map.visit(self)
+
+
+a = ContentTypeVisitor(app.portal)
+map = a.visit_types()
+
+b = ContentMapVisitor(map)
+b.fuzz()
+
