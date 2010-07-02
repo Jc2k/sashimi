@@ -1,6 +1,16 @@
 
 import weakref
 
+from AccessControl.SecurityManagement import newSecurityManager
+from Testing.makerequest import makerequest
+
+import transaction
+
+def login(app, manager_user):
+    user = app.acl_users.getUserById(manager_user).__of__(app.acl_users)
+    newSecurityManager(None, user)
+    return makerequest(app)
+
 class Node(object):
 
     def __init__(self):
@@ -45,8 +55,30 @@ class Content(Node):
         self.content_type = content_type
 
     def fuzz(self):
-        print self.content_type.get_breadcrumb()
+        info = self.content_type.info
 
+        app.portal.portal_types.constructContent(self.content_type.content_type, app.portal, "fred", None)
+        ob = app.portal.get("fred")
+
+        print self.content_type.get_breadcrumb()
+        for key in ob.schema.keys():
+            field = ob.schema[key]
+
+            if field.widget.visible == False:
+                continue
+
+            if isinstance(field.widget.visible, dict):
+                if "edit" in field.widget.visible:
+                    if field.widget.visible["edit"] == "invisible":
+                        continue
+
+            # THIS IS WHERE WE GENERATE SOME DUMMY CONTENT FOR THAT KIND OF FIELD
+            # WE NEED TO FUZZ FOR:
+            # set(['string', 'reference', 'text', 'image', 'lines', 'datetime', 'boolean', 'file'])
+
+        info._finishConstruction(ob)
+
+        transaction.abort()
 
 class ContentTypeVisitor(object):
 
@@ -91,11 +123,15 @@ class ContentMapVisitor(object):
         self.map = map
 
     def visit_node(self, node):
-        print node.get_breadcrumb()
+        if not isinstance(node, ContentType):
+            return
+        c = Content(node)
+        c.fuzz()
 
     def fuzz(self):
         self.map.visit(self)
 
+app = login(app, "zopeadmin")
 
 a = ContentTypeVisitor(app.portal)
 map = a.visit_types()
