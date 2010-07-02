@@ -24,5 +24,10 @@ setup(
     install_requires = [
         'setuptools',
     ],
+    extras_require = {
+        "test": [
+            "Mock",
+            ],
+    },
 )
 
