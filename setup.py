@@ -27,6 +27,7 @@ setup(
     extras_require = {
         "test": [
             "Mock",
+            "coverage",
             ],
     },
 )
