@@ -1,4 +1,5 @@
 from unittest import TestCase
+from mock import Mock
 from sashimi.node import Node
 
 class TestNode(TestCase):
@@ -14,3 +15,12 @@ class TestNode(TestCase):
         parent.append_child(child)
         self.failUnlessEqual(child.parent, parent)
         self.failUnless(child in parent.children)
+
+    def test_visit(self):
+        visitor = Mock()
+        parent = Node()
+        child = Node()
+        parent.append_child(child)
+        parent.visit(visitor)
+        self.failUnlessEqual(visitor.visit_node.call_count, 2)
+
