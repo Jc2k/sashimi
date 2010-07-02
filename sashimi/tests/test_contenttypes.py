@@ -47,7 +47,7 @@ class TestContentTypes(unittest.TestCase):
         visitor = Mock()
         retval.visit(visitor)
 
-        for args, kwargs in visitor.visit.call_args_list:
+        for args, kwargs in visitor.visit_node.call_args_list:
             node = args[0]
             print node.get_breadcrumb()
 
