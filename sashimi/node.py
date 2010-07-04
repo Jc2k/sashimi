@@ -21,6 +21,7 @@ class Node(object):
         child.set_parent(self)
 
     def visit(self, visitor):
-        visitor.visit_node(self)
+        visitor.enter_node(self)
         for child in self.children:
             child.visit(visitor)
+        visitor.leave_node(self)

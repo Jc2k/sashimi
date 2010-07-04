@@ -22,5 +22,6 @@ class TestNode(TestCase):
         child = Node()
         parent.append_child(child)
         parent.visit(visitor)
-        self.failUnlessEqual(visitor.visit_node.call_count, 2)
+        self.failUnlessEqual(visitor.enter_node.call_count, 2)
+        self.failUnlessEqual(visitor.leave_node.call_count, 2)
 
