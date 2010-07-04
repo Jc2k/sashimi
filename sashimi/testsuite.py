@@ -3,7 +3,6 @@ import unittest
 
 from AccessControl.SecurityManagement import newSecurityManager
 from Testing.makerequest import makerequest
-import transaction
 
 from sashimi.contenttypes import ContentTypeVisitor
 from sashimi.content import ContentMapVisitor
@@ -11,18 +10,19 @@ from sashimi.content import ContentMapVisitor
 
 class TestCase(object):
 
-    def login(app, manager_user):
+    def promote(self, app, manager_user):
         user = app.acl_users.getUserById(manager_user).__of__(app.acl_users)
         newSecurityManager(None, user)
         return makerequest(app)
 
     def test_fuzz(self):
-        #app = login(app, "zopeadmin")
+        #portal = self.promote(self.portal, "editor")
+        self.loginAsPortalOwner()
 
         a = ContentTypeVisitor(self.portal)
         map = a.visit_types()
 
-        b = ContentMapVisitor(map)
+        b = ContentMapVisitor(map, self.portal)
         b.fuzz()
 
 

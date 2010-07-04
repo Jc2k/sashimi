@@ -24,18 +24,20 @@ class ContentTypeVisitor(object):
     def __init__(self, portal):
         self.portal = portal
         self.visit_list = []
+        self.content_types = set()
 
     def visit_types(self):
         root = ContentTypeRoot()
 
-        content_types = frozenset(self.portal.portal_types.listContentTypes())
+        self.content_types = frozenset(self.portal.portal_types.listContentTypes())
         marked_content_types = set()
-        for content_type in content_types:
+        self.unavailable_content_types = set()
+        for content_type in self.content_types:
             info = self.portal.portal_types[content_type]
             # Any content types i can contain cant be a root content type, unless i can contain myself
             marked_content_types.update(x for x in info.allowed_content_types if x != content_type)
 
-        root_content_types = content_types - marked_content_types
+        root_content_types = self.content_types - marked_content_types
         for content_type in root_content_types:
             info = self.portal.portal_types[content_type]
             self.visit_type(content_type, info, root)
@@ -46,6 +48,8 @@ class ContentTypeVisitor(object):
         self.visit_list.append(content_type)
 
         for allowed in info.allowed_content_types:
+            if not allowed in self.content_types:
+                continue
             a = self.portal.portal_types[allowed]
             c = ContentType(allowed, a)
             parent.append_child(c)
