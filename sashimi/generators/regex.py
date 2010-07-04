@@ -1,4 +1,7 @@
 
+from sashimi.generators.registry import registry
+
+
 class Character(object):
 
     def __init__(self, character):
@@ -109,5 +112,17 @@ class TreeGenerator(object):
     def repetition(self, min=0, max=-1):
         node = None
         r = Repetition(node, min, max)
+
+
+class RegexFuzzer(object):
+
+    @classmethod
+    def can_fuzz(cls, field):
+        return False
+
+    def fuzz(self, field):
+        return
+
+registry.register(RegexFuzzer)
 
 
