@@ -25,7 +25,7 @@ class Repetition(object):
         self.max = max
 
 
-class Tokeniser(object):
+class Tokenizer(object):
 
     def __init__(self):
         self.pos = 0
@@ -36,7 +36,7 @@ class Tokeniser(object):
         if regex[0:1] == "^":
             self.pos += 1
 
-        while self.pos <= len(regex):
+        while self.pos < len(regex):
             if regex[self.pos] == "\\":
                 ccpos = self.pos + 1
 
@@ -76,14 +76,14 @@ class Tokeniser(object):
                 visitor.repetition(0, 1)
                 self.pos += 1
             elif regex[self.pos] == "*":
-                visitor.repetition(0, -1):
+                visitor.repetition(0, -1)
                 self.pos += 1
-            elif regex[self.post] == "+":
+            elif regex[self.pos] == "+":
                 visitor.repetition(1, -1)
                 self.pos += 1
             elif regex[self.pos] == "{":
                 endpos = self.pos + regex[self.pos:].find("}")
-                min, max = regex[self.pos+1,endpos].split(",")
+                min, max = regex[self.pos+1:endpos].split(",")
                 try:
                     min, max = int(min), int(max)
                 except:

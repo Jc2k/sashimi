@@ -1,14 +1,14 @@
 from unittest import TestCase
 from mock import Mock
 
-from sashimi.generator.regex import RegexTokenizer
+from sashimi.generators.regex import Tokenizer
 
 
-class TestRegexTokenizer(object):
+class TestRegexTokenizer(TestCase):
 
     def setUp(self):
         self.visitor = Mock()
-        self.t = RegexTokenizer()
+        self.t = Tokenizer()
 
     def test_character(self):
         self.t.visit("apple", self.visitor)
@@ -21,6 +21,6 @@ class TestRegexTokenizer(object):
 
     def test_precise_repetition(self):
         self.t.visit("fred{2,999}", self.visitor)
-        self.failUnlessEqual(self.visitor.repetition.call_args, (2, 999))
+        self.failUnlessEqual(self.visitor.repetition.call_args, ((2, 999), {}))
 
 
