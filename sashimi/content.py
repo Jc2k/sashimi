@@ -3,6 +3,7 @@ import uuid
 
 from sashimi.node import Node
 from sashimi.contenttypes import ContentType
+from sashimi.generators.registry import registry
 
 class Content(Node):
 
@@ -13,6 +14,7 @@ class Content(Node):
 
         self.id = str(uuid.uuid4())
         self.ob = None
+        self.url = None
 
     def get_field_info(self, field):
         info = {}
@@ -36,8 +38,15 @@ class Content(Node):
         else:
             parent = self.portal
 
-        self.portal.portal_types.constructContent(self.content_type.content_type, parent, self.id, None)
+        try:
+            self.portal.portal_types.constructContent(self.content_type.content_type, parent, self.id, None)
+        except:
+            #AccessControl_Unauthorized ?
+            return
         self.ob = parent.get(self.id)
+
+        if "schema" not in dir(self.ob):
+            return
 
         print self.content_type.get_breadcrumb()
         for key in self.ob.schema.keys():
@@ -56,8 +65,9 @@ class Content(Node):
                 pass
 
         info._finishConstruction(self.ob)
-
         transaction.commit()
+
+        self.url = self.ob.absolute_url()
 
 
 class ContentMapVisitor(object):
@@ -80,6 +90,9 @@ class ContentMapVisitor(object):
         self.stack.insert(0, c)
 
     def leave_node(self, node):
+        if not isinstance(node, ContentType):
+            return
+
         assert node == self.stack[0].content_type
         self.stack.pop(0)
 
