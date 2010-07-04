@@ -7,10 +7,10 @@ class Registry(object):
     def register(self, fuzzer):
         self.fuzzers.append(fuzzer)
 
-    def fuzz_field(self, field):
+    def get_fuzzers(self, field):
         for fuzzer in self.fuzzers:
             if fuzzer.can_fuzz(field):
-                return fuzzer.fuzz(field)
+                yield fuzzer()
 
 
 # There is one registry

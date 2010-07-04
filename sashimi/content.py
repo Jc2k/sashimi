@@ -47,9 +47,13 @@ class Content(Node):
             if not field_info['visible']:
                 continue
 
-            # THIS IS WHERE WE GENERATE SOME DUMMY CONTENT FOR THAT KIND OF FIELD
-            # WE NEED TO FUZZ FOR:
-            # set(['string', 'reference', 'text', 'image', 'lines', 'datetime', 'boolean', 'file'])
+            for fuzzer in registry.get_fuzzers(field_info):
+                data = fuzzer.fuzz(field_info)
+                field.getMutator()(data)
+                break
+            else:
+                #print "Couldn't fuzz any data for %s (%s)" % (key, field_info)
+                pass
 
         info._finishConstruction(self.ob)
 
