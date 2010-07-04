@@ -14,6 +14,20 @@ class Content(Node):
         self.id = str(uuid.uuid4())
         self.ob = None
 
+    def get_field_info(self, field):
+        info = {}
+
+        info['visible'] = True
+        if field.widget.visible == False:
+            info['visible'] = False
+        elif isinstance(field.widget.visible, dict):
+            if "edit" in field.widget.visible:
+                info['visible'] = field.widget.visible['edit'] == "visible"
+
+        info['type'] = field.type
+
+        return info
+
     def fuzz(self):
         info = self.content_type.info
 
@@ -28,14 +42,10 @@ class Content(Node):
         print self.content_type.get_breadcrumb()
         for key in self.ob.schema.keys():
             field = self.ob.schema[key]
+            field_info = self.get_field_info(field)
 
-            if field.widget.visible == False:
+            if not field_info['visible']:
                 continue
-
-            if isinstance(field.widget.visible, dict):
-                if "edit" in field.widget.visible:
-                    if field.widget.visible["edit"] == "invisible":
-                        continue
 
             # THIS IS WHERE WE GENERATE SOME DUMMY CONTENT FOR THAT KIND OF FIELD
             # WE NEED TO FUZZ FOR:
