@@ -3,6 +3,8 @@ import weakref
 
 class Node(object):
 
+    name = "Node"
+
     def __init__(self):
         self._parent = None
         self.children = []
@@ -19,6 +21,15 @@ class Node(object):
     def append_child(self, child):
         self.children.append(child)
         child.set_parent(self)
+
+    def reparent_child(self, child, new_parent):
+        self.children.remove(child)
+        new_parent.append_child(child)
+
+    def graph(self):
+        if self.children:
+            return "%s(%s)" % (self.name, ",".join(x.graph() for x in self.children))
+        return self.name
 
     def visit(self, visitor):
         visitor.enter_node(self)

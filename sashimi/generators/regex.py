@@ -1,29 +1,30 @@
 
+from sashimi.node import Node
 from sashimi.generators.registry import registry
 
 
-class Character(object):
+class Character(Node):
+    name = "Character"
 
     def __init__(self, character):
+        super(Character, self).__init__()
         self.character = character
 
 
-class Sequence(object):
-
-    def __init__(self, *sequence):
-        self.sequence = sequence
+class Sequence(Node):
+    name = "Sequence"
 
 
-class Alternative(object):
-
-    def __init__(self, *alternatives):
-        self.alternatives = alternatives
+class Alternative(Node):
+    name = "Alternative"
 
 
-class Repetition(object):
+class Repetition(Node):
+    name = "Repetition"
 
     def __init__(self, node, min=0, max=-1):
-        self.node = node
+        super(Repetition, self).__init__()
+        node.parent.reparent_child(node, self)
         self.min = min
         self.max = max
 
@@ -75,6 +76,9 @@ class Tokenizer(object):
             elif regex[self.pos] == ")":
                 visitor.end_group()
                 self.pos += 1
+            elif regex[self.pos] == "|":
+                visitor.alternative()
+                self.pos += 1
             elif regex[self.pos] == "?":
                 visitor.repetition(0, 1)
                 self.pos += 1
@@ -100,18 +104,49 @@ class Tokenizer(object):
 
 class TreeGenerator(object):
 
+    def __init__(self):
+        self.last_branch = Sequence()
+        self.last_leaf = self.last_branch
+
     def character(self, character):
         c = Character(character)
+        self.last_branch.append_child(c)
+        self.last_leaf = c
 
     def start_group(self):
-        pass
+        group = Alternative()
+        child = Sequence()
+        group.append_child(child)
+
+        self.last_branch.append_child(group)
+        self.last_branch = child
+        self.last_leaf = child
+
+    def alternative(self):
+        self.last_branch = self.last_branch.parent
+        child = Sequence()
+        self.last_branch.append_child(child)
+        self.last_branch = child
+        self.last_lead = child
 
     def end_group(self):
-        pass
+        self.last_leaf = self.last_branch.parent
+        self.last_branch = self.last_branch.parent.parent
 
     def repetition(self, min=0, max=-1):
-        node = None
-        r = Repetition(node, min, max)
+        r = Repetition(self.last_leaf, min, max)
+        self.last_branch.append_child(r)
+        self.last_leaf = r
+
+
+def get_regex_tree(regex):
+    visitor = TreeGenerator()
+    tokenizer = Tokenizer()
+    tokenizer.visit(regex, visitor)
+    tree = visitor.last_branch
+    while tree.parent:
+        tree = tree.parent
+    return tree
 
 
 class RegexFuzzer(object):
