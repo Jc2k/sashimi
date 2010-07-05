@@ -4,7 +4,7 @@ from sashimi.generators.registry import registry
 
 
 class Character(Node):
-    name = "Character"
+    name = "Ch"
 
     def __init__(self, character):
         super(Character, self).__init__()
@@ -12,15 +12,15 @@ class Character(Node):
 
 
 class Sequence(Node):
-    name = "Sequence"
+    name = "Sq"
 
 
 class Alternative(Node):
-    name = "Alternative"
+    name = "Al"
 
 
 class Repetition(Node):
-    name = "Repetition"
+    name = "Re"
 
     def __init__(self, node, min=0, max=-1):
         super(Repetition, self).__init__()
