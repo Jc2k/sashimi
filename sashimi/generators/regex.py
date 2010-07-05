@@ -105,7 +105,8 @@ class Tokenizer(object):
 class TreeGenerator(object):
 
     def __init__(self):
-        self.last_branch = Sequence()
+        self.root = Sequence()
+        self.last_branch = self.root
         self.last_leaf = self.last_branch
 
     def character(self, character):
@@ -127,7 +128,7 @@ class TreeGenerator(object):
         child = Sequence()
         self.last_branch.append_child(child)
         self.last_branch = child
-        self.last_lead = child
+        self.last_leaf = child
 
     def end_group(self):
         self.last_leaf = self.last_branch.parent
