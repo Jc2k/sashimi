@@ -144,10 +144,7 @@ def get_regex_tree(regex):
     visitor = TreeGenerator()
     tokenizer = Tokenizer()
     tokenizer.visit(regex, visitor)
-    tree = visitor.last_branch
-    while tree.parent:
-        tree = tree.parent
-    return tree
+    return visitor.root
 
 
 class RegexFuzzer(object):
