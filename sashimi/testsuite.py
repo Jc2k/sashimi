@@ -23,7 +23,14 @@ class TestCase(object):
         map = a.visit_types()
 
         b = ContentMapVisitor(map, self.portal)
-        b.fuzz()
+        urls = b.fuzz()
+
+        self.browser_login('editor')
+        for url, content in urls:
+            print url, content
+            import sys
+            sys.stdout.flush()
+            self.browser.open(url)
 
 
 class TestSuite(unittest.TestSuite):

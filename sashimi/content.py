@@ -76,6 +76,7 @@ class ContentMapVisitor(object):
         self.map = map
         self.portal = portal
         self.stack = []
+        self.urls = []
 
     def enter_node(self, node):
         if not isinstance(node, ContentType):
@@ -87,6 +88,8 @@ class ContentMapVisitor(object):
 
         c = Content(parent, node, self.portal)
         c.fuzz()
+        self.urls.append((c.url, c))
+
         self.stack.insert(0, c)
 
     def leave_node(self, node):
@@ -98,5 +101,5 @@ class ContentMapVisitor(object):
 
     def fuzz(self):
         self.map.visit(self)
-
+        return self.urls
 
