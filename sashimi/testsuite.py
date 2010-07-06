@@ -30,7 +30,12 @@ class MixinTestCase(object):
             print url, content
             import sys
             sys.stdout.flush()
-            self.browser.open(url)
+            try:
+                self.browser.open(url)
+            except:
+                print content.data
+                sys.stdout.flush()
+                raise
 
 
 class TestSuite(unittest.TestSuite):

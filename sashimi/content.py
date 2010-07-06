@@ -14,6 +14,7 @@ class Content(Node):
 
         self.id = str(uuid.uuid4())
         self.ob = None
+        self.data = {}
         self.url = None
 
     def get_field_info(self, field):
@@ -60,6 +61,7 @@ class Content(Node):
                 data = fuzzer.fuzz(field_info)
                 mutator = field.getMutator(field)
                 if mutator:
+                    self.data[key] = data
                     mutator(data)
                 break
             else:
