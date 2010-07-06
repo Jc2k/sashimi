@@ -8,7 +8,7 @@ from sashimi.contenttypes import ContentTypeVisitor
 from sashimi.content import ContentMapVisitor
 
 
-class TestCase(object):
+class MixinTestCase(object):
 
     def promote(self, app, manager_user):
         user = app.acl_users.getUserById(manager_user).__of__(app.acl_users)
@@ -37,6 +37,6 @@ class TestSuite(unittest.TestSuite):
 
     def __init__(self, mixin):
         super(TestSuite, self).__init__()
-        cls = type('TestFuzzing', (mixin, TestCase), {})
+        cls = type('TestFuzzing', (mixin, MixinTestCase), {})
         self.addTest(unittest.makeSuite(cls))
 

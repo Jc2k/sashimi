@@ -6,5 +6,6 @@ class TestContent(TestCase):
 
     def test_empty_content_map(self):
         m = Mock()
-        c = ContentMapVisitor(m)
+        p = Mock()
+        c = ContentMapVisitor(m, p)
         c.fuzz()
