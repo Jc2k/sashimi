@@ -28,6 +28,9 @@ setup(
         "test": [
             "Mock",
             "coverage",
+            "uuid",
+            # Dependencies for Zope/Plone testing
+            "Zope2 == 2.12.8",
             ],
     },
 )
