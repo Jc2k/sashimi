@@ -82,7 +82,7 @@ class LinesFuzzer(object):
         return False
 
     def fuzz(self, field):
-        return "\n".join(self.ipsum.get_sentence() for x in range(random.randomint(3, 10)))
+        return "\n".join(self.ipsum.get_sentence() for x in range(random.randint(3, 10)))
 
 
 registry.register(TextFuzzer)
