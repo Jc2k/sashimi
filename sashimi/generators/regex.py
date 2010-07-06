@@ -168,10 +168,12 @@ class RegexFuzzer(object):
 
     @classmethod
     def can_fuzz(cls, field):
+        if "regex" in field:
+            return True
         return False
 
     def fuzz(self, field):
-        return
+        return get_regex_tree(field['regex']).random()
 
 registry.register(RegexFuzzer)
 

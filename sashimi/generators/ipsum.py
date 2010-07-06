@@ -15,7 +15,11 @@ class Ipsum(object):
         self.words = codecs.open(self.wordfile, 'r', 'utf-8').read().split()
         self.words_len = len(self.words)
 
+    @classmethod
     def can_fuzz(cls, field):
+        if "text" in field["type"]:
+            if not "regex" in field:
+                return True
         return False
 
     def fuzz(self, field):
