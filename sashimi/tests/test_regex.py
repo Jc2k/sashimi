@@ -28,3 +28,29 @@ class TestReqex(unittest.TestCase):
     def test_nested_grouping(self):
         a = get_regex_tree("((foo|bar)|baz)")
         self.failUnlessEqual(a.graph(), "Sq(Al(Sq(Al(Sq(Ch,Ch,Ch),Sq(Ch,Ch,Ch))),Sq(Ch,Ch,Ch)))")
+
+
+class TestRegexGeneration(unittest.TestCase):
+
+    def test_repetition(self):
+        a = get_regex_tree("a?")
+        self.failUnless(a.random() in [
+            "",
+            "a",
+            ])
+
+    def test_grouping(self):
+        a = get_regex_tree("((foo|bar)|baz)")
+        self.failUnless(a.random() in [
+            "foo",
+            "bar",
+            "baz",
+            ])
+
+    def test_grouping_then_sequence(self):
+        a = get_regex_tree("(foo|bar)baz")
+        self.failUnless(a.random() in [
+            "foobaz",
+            "barbaz",
+            ])
+

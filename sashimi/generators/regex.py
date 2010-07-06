@@ -1,4 +1,6 @@
 
+import random
+
 from sashimi.node import Node
 from sashimi.generators.registry import registry
 
@@ -10,13 +12,21 @@ class Character(Node):
         super(Character, self).__init__()
         self.character = character
 
+    def random(self):
+        return self.character
 
 class Sequence(Node):
     name = "Sq"
 
+    def random(self):
+        return "".join(n.random() for n in self.children)
+
 
 class Alternative(Node):
     name = "Al"
+
+    def random(self):
+        return random.choice(self.children).random()
 
 
 class Repetition(Node):
@@ -27,6 +37,13 @@ class Repetition(Node):
         node.parent.reparent_child(node, self)
         self.min = min
         self.max = max
+
+    def random(self):
+        if self.max < 0:
+            max = 100
+        else:
+            max = self.max
+        return "".join(self.children[0].random() for i in range(self.min, max))
 
 
 class Tokenizer(object):
