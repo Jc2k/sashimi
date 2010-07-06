@@ -58,7 +58,9 @@ class Content(Node):
 
             for fuzzer in registry.get_fuzzers(field_info):
                 data = fuzzer.fuzz(field_info)
-                field.getMutator()(data)
+                mutator = field.getMutator(field)
+                if mutator:
+                    mutator(data)
                 break
             else:
                 #print "Couldn't fuzz any data for %s (%s)" % (key, field_info)
