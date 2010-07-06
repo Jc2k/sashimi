@@ -17,7 +17,7 @@ class Ipsum(object):
 
     @classmethod
     def can_fuzz(cls, field):
-        if "text" in field["type"]:
+        if field["type"] == "text":
             if not "regex" in field:
                 return True
         return False
