@@ -9,7 +9,7 @@ def sibpath(file):
 class Ipsum(object):
 
     num_paragraphs = 3
-    wordfile = sibpath("udipsum.txt")
+    wordfile = sibpath("ipsum.txt")
 
     def __init__(self):
         self.words = codecs.open(self.wordfile, 'r', 'utf-8').read().split()
