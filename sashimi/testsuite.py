@@ -26,16 +26,28 @@ class MixinTestCase(object):
         urls = b.fuzz()
 
         self.browser_login('editor')
+
+        f = open("log.txt", "w")
+        errors, pos, size = 0, 1, len(urls)
         for url, content in urls:
-            print url, content
-            import sys
-            sys.stdout.flush()
+            f.write("test: %d of %d (%d errors so far)\n" % (pos, size, errors))
+            f.write("breadcrumb: %s\n" % content.content_type.get_breadcrumb())
+            f.write("url: %s\n" % url)
+            f.write("data: %s\n\n" % content.data)
+
             try:
                 self.browser.open(url)
             except:
-                print content.data
-                sys.stdout.flush()
-                raise
+                errors += 1
+                import traceback
+                traceback.print_exc(file=f)
+
+            f.write("--------------------------------------------------------------\n\n\n")
+            pos += 1
+
+        f.write("Test summary: %d tests run, %d tests passed, %d tests failed.\n" % (size, size-errors, errors))
+
+        f.close()
 
 
 class TestSuite(unittest.TestSuite):
