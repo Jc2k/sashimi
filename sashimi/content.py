@@ -54,6 +54,10 @@ class Content(Node):
             field = self.ob.schema[key]
             field_info = self.get_field_info(field)
 
+            if key in ("id", "language"):
+                # Don't fuzz the ID yet
+                continue
+
             if not field_info['visible']:
                 continue
 
