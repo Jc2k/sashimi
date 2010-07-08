@@ -59,7 +59,7 @@ class Content(Node):
 
             for fuzzer in registry.get_fuzzers(field_info):
                 data = fuzzer.fuzz(field_info)
-                mutator = field.getMutator(field)
+                mutator = field.getMutator(self.ob)
                 if mutator:
                     self.data[key] = data
                     mutator(data)
