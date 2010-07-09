@@ -29,6 +29,14 @@ class Content(Node):
 
         info['type'] = field.type
 
+        for validator in field.validators:
+            if hasattr(validator, "regex"):
+                info["regex"] = validator.regex
+            if hasattr(validator, "min"):
+                info["min"] = validator.min
+            if hasattr(validator, "max"):
+                info["max"] = validator.max
+
         return info
 
     def fuzz(self):
@@ -71,6 +79,9 @@ class Content(Node):
             else:
                 #print "Couldn't fuzz any data for %s (%s)" % (key, field_info)
                 pass
+
+        errors = self.ob.validate()
+        assert len(errors.keys()) == 0
 
         info._finishConstruction(self.ob)
         transaction.commit()
