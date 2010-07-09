@@ -39,6 +39,15 @@ class Content(Node):
 
         return info
 
+    def fuzz_field(self, field_info, field):
+        for fuzzer in registry.get_fuzzers(field_info):
+            data = fuzzer.fuzz(field_info)
+            mutator = field.getMutator(self.ob)
+            if mutator:
+                mutator(data)
+                return data
+        return None
+
     def fuzz(self):
         info = self.content_type.info
 
@@ -69,16 +78,9 @@ class Content(Node):
             if not field_info['visible']:
                 continue
 
-            for fuzzer in registry.get_fuzzers(field_info):
-                data = fuzzer.fuzz(field_info)
-                mutator = field.getMutator(self.ob)
-                if mutator:
-                    self.data[key] = data
-                    mutator(data)
-                break
-            else:
-                #print "Couldn't fuzz any data for %s (%s)" % (key, field_info)
-                pass
+            data = self.fuzz_field(field_info, field)
+            if data:
+                self.data[key] = data
 
         errors = self.ob.validate()
         assert len(errors.keys()) == 0
