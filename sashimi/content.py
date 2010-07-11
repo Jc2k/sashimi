@@ -57,7 +57,7 @@ class Content(Node):
         errors = self.ob.validate()
         assert len(errors.keys()) == 0
 
-        info["_finishConstruction"](self.ob)
+        self.content_type.info["_finishConstruction"](self.ob)
         transaction.commit()
 
         self.url = self.ob.absolute_url()

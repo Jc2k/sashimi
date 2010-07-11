@@ -77,7 +77,7 @@ class ContentTypeVisitor(object):
             schema = a["schema"]
             a['fields'] = {}
             for field in schema.fields():
-                if field in ("id", "language"):
+                if field.getName() in ("id", "language"):
                     continue
                 field_info = self.visit_field(schema[field.getName()])
                 a['fields'][field.getName()] = field_info
