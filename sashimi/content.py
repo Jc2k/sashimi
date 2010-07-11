@@ -17,28 +17,6 @@ class Content(Node):
         self.data = {}
         self.url = None
 
-    def get_field_info(self, field):
-        info = {}
-
-        info['visible'] = True
-        if field.widget.visible == False:
-            info['visible'] = False
-        elif isinstance(field.widget.visible, dict):
-            if "edit" in field.widget.visible:
-                info['visible'] = field.widget.visible['edit'] == "visible"
-
-        info['type'] = field.type
-
-        for validator in field.validators:
-            if hasattr(validator, "regex"):
-                info["regex"] = validator.regex
-            if hasattr(validator, "min"):
-                info["min"] = validator.min
-            if hasattr(validator, "max"):
-                info["max"] = validator.max
-
-        return info
-
     def fuzz_field(self, field_info, field):
         for fuzzer in registry.get_fuzzers(field_info):
             data = fuzzer.fuzz(field_info)
@@ -67,20 +45,14 @@ class Content(Node):
             return
 
         print self.content_type.get_breadcrumb()
-        for key in self.ob.schema.keys():
-            field = self.ob.schema[key]
-            field_info = self.get_field_info(field)
 
-            if key in ("id", "language"):
-                # Don't fuzz the ID yet
+        for field, info in self.content_type.info["fields"].iteritems():
+            if not info['visible']:
                 continue
 
-            if not field_info['visible']:
-                continue
-
-            data = self.fuzz_field(field_info, field)
+            data = self.fuzz_field(info, info["field"])
             if data:
-                self.data[key] = data
+                self.data[field] = data
 
         errors = self.ob.validate()
         assert len(errors.keys()) == 0

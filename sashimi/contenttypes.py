@@ -74,9 +74,40 @@ class ContentTypeVisitor(object):
             c = ContentType(a)
             parent.append_child(c)
 
+            schema = a["schema"]
+            a['fields'] = {}
+            for field in schema.fields():
+                if field in ("id", "language"):
+                    continue
+                field_info = self.visit_field(schema[field.getName()])
+                a['fields'][field.getName()] = field_info
+
             # Don't descend if i'm already in the visit list: should allow Foo -> Foo, but stop Foo -> Foo -> Foo
             if not allowed in self.visit_list:
                 self.visit_type(a, c)
 
         self.visit_list.remove(content_type)
+
+    def visit_field(self, field):
+        info = {}
+        info["field"] = field
+
+        info['visible'] = True
+        if field.widget.visible == False:
+            info['visible'] = False
+        elif isinstance(field.widget.visible, dict):
+            if "edit" in field.widget.visible:
+                info['visible'] = field.widget.visible['edit'] == "visible"
+
+        info['type'] = field.type
+
+        for validator in field.validators:
+            if hasattr(validator, "regex"):
+                info["regex"] = validator.regex
+            if hasattr(validator, "min"):
+                info["min"] = validator.min
+            if hasattr(validator, "max"):
+                info["max"] = validator.max
+
+        return info
 
