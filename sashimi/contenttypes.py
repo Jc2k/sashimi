@@ -1,3 +1,8 @@
+try:
+    from Products.LinguaPlone import public as atapi
+except ImportError:
+    from Products.Archetypes import atapi
+
 from sashimi.node import Node
 
 class ContentTypeRoot(Node):
@@ -8,9 +13,9 @@ class ContentTypeRoot(Node):
 
 class ContentType(Node):
 
-    def __init__(self, content_type, info):
+    def __init__(self, info):
         super(ContentType, self).__init__()
-        self.content_type = content_type
+        self.content_type = info["portal_type"]
         self.info = info
 
     def get_breadcrumb(self):
@@ -26,36 +31,52 @@ class ContentTypeVisitor(object):
         self.visit_list = []
         self.content_types = set()
 
+    def update_metadata(self):
+        self.content_types = {}
+        for atapi_info in atapi.listTypes():
+            at = atapi_info.copy()
+            if not at["portal_type"] in self.portal.portal_types:
+                continue
+            pt = self.portal.portal_types[at["portal_type"]]
+            at['allowed_types'] = pt.allowed_content_types
+            at["_finishConstruction"] = pt._finishConstruction
+            self.content_types[at["portal_type"]] = at
+
+
     def visit_types(self):
+        self.update_metadata()
+
         root = ContentTypeRoot()
 
-        self.content_types = frozenset(self.portal.portal_types.listContentTypes())
-        marked_content_types = set()
-        self.unavailable_content_types = set()
-        for content_type in self.content_types:
-            info = self.portal.portal_types[content_type]
-            # Any content types i can contain cant be a root content type, unless i can contain myself
-            marked_content_types.update(x for x in info.allowed_content_types if x != content_type)
+        all_types = frozenset(self.content_types.keys())
+        marked_types = set()
+        unavail_types = set()
 
-        root_content_types = self.content_types - marked_content_types
+        for content_type in all_types:
+            # Any content types i can contain cant be a root content type, unless i can contain myself
+            allowed = self.content_types[content_type]['allowed_types']
+            marked_types.update(x for x in allowed)
+
+        root_content_types = all_types - marked_types
         for content_type in root_content_types:
-            info = self.portal.portal_types[content_type]
-            self.visit_type(content_type, info, root)
+            self.visit_type(self.content_types[content_type], root)
 
         return root
 
-    def visit_type(self, content_type, info, parent):
+    def visit_type(self, info, parent):
+        content_type = info["portal_type"]
         self.visit_list.append(content_type)
 
-        for allowed in info.allowed_content_types:
+        for allowed in info["allowed_types"]:
             if not allowed in self.content_types:
                 continue
-            a = self.portal.portal_types[allowed]
-            c = ContentType(allowed, a)
+            a = self.content_types[allowed]
+            c = ContentType(a)
             parent.append_child(c)
 
             # Don't descend if i'm already in the visit list: should allow Foo -> Foo, but stop Foo -> Foo -> Foo
             if not allowed in self.visit_list:
-                self.visit_type(allowed, a, c)
+                self.visit_type(a, c)
 
         self.visit_list.remove(content_type)
+
