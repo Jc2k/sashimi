@@ -6,7 +6,7 @@ from Testing.makerequest import makerequest
 
 from sashimi.contenttypes import ContentTypeVisitor
 from sashimi.content import ContentMapVisitor
-
+from sashimi.report import HtmlReport
 
 class MixinTestCase(object):
 
@@ -16,6 +16,9 @@ class MixinTestCase(object):
         return makerequest(app)
 
     def test_fuzz(self):
+        report = HtmlReport("log.html")
+        report.start()
+
         #portal = self.promote(self.portal, "editor")
         self.loginAsPortalOwner()
 
@@ -23,31 +26,20 @@ class MixinTestCase(object):
         map = a.visit_types()
 
         b = ContentMapVisitor(map, self.portal)
-        urls = b.fuzz()
+        urls = b.fuzz(report)
 
         self.browser_login('editor')
 
-        f = open("log.txt", "w")
-        errors, pos, size = 0, 1, len(urls)
         for url, content in urls:
-            f.write("test: %d of %d (%d errors so far)\n" % (pos, size, errors))
-            f.write("breadcrumb: %s\n" % content.content_type.get_breadcrumb())
-            f.write("url: %s\n" % url)
-            f.write("data: %s\n\n" % content.data)
-
             try:
                 self.browser.open(url)
             except:
-                errors += 1
-                import traceback
-                traceback.print_exc(file=f)
+                report.exception(content)
+                continue
 
-            f.write("--------------------------------------------------------------\n\n\n")
-            pos += 1
+            report.success(content)
 
-        f.write("Test summary: %d tests run, %d tests passed, %d tests failed.\n" % (size, size-errors, errors))
-
-        f.close()
+        report.finish()
 
 
 class TestSuite(unittest.TestSuite):

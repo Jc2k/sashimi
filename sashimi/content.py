@@ -80,7 +80,11 @@ class ContentMapVisitor(object):
             parent = self.stack[0]
 
         c = Content(parent, node, self.portal)
-        c.fuzz()
+        try:
+            c.fuzz()
+        except:
+            self.report.exception(c)
+
         self.urls.append((c.url, c))
 
         self.stack.insert(0, c)
@@ -92,7 +96,9 @@ class ContentMapVisitor(object):
         assert node == self.stack[0].content_type
         self.stack.pop(0)
 
-    def fuzz(self):
+    def fuzz(self, report):
+        self.report = report
+
         self.map.visit(self)
         return self.urls
 
