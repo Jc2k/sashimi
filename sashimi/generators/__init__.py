@@ -1,3 +1,3 @@
 
 from sashimi.generators import \
-    bool, numbers, ipsum, regex, dtfuzz
+    bool, numbers, vocabulary, ipsum, regex, dtfuzz

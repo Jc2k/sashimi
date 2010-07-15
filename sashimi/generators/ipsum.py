@@ -47,7 +47,7 @@ class TextFuzzer(object):
     @classmethod
     def can_fuzz(cls, field):
         if field["type"] == "text":
-            if not "regex" in field:
+            if not "regex" in field and not "vocabulary" in field:
                 return True
         return False
 
@@ -62,7 +62,7 @@ class StringFuzzer(object):
     @classmethod
     def can_fuzz(cls, field):
         if field["type"] == "string":
-            if not "regex" in field:
+            if not "regex" in field and not "vocabulary" in field:
                 return True
         return False
 
@@ -77,7 +77,7 @@ class LinesFuzzer(object):
     @classmethod
     def can_fuzz(cls, field):
         if field["type"] == "lines":
-            if not "regex" in field:
+            if not "regex" in field and not "vocabulary" in field:
                 return True
         return False
 
