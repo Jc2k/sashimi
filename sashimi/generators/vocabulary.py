@@ -5,8 +5,6 @@ from sashimi.generators.registry import registry
 
 class TextFuzzer(object):
 
-    ipsum = Ipsum()
-
     @classmethod
     def can_fuzz(cls, field):
         if field["type"] == "text" and "vocabulary" in field:
@@ -19,8 +17,6 @@ class TextFuzzer(object):
 
 class StringFuzzer(object):
 
-    ipsum = Ipsum()
-
     @classmethod
     def can_fuzz(cls, field):
         if field["type"] == "string" and "vocabulary" in field:
@@ -32,8 +28,6 @@ class StringFuzzer(object):
 
 
 class LinesFuzzer(object):
-
-    ipsum = Ipsum()
 
     @classmethod
     def can_fuzz(cls, field):
