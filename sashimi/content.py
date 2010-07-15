@@ -54,8 +54,9 @@ class Content(Node):
             if data:
                 self.data[field] = data
 
-        errors = self.ob.validate()
-        assert len(errors.keys()) == 0
+        self.errors = {}
+        self.ob.Schema().validate(self.ob, None, self.errors, True, True)
+        assert len(self.errors.keys()) == 0
 
         self.content_type.info["_finishConstruction"](self.ob)
         transaction.commit()

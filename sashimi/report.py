@@ -19,6 +19,7 @@ class HtmlReport(object):
 
         output.write("<h3>%s</h3>" % content.content_type.get_breadcrumb())
 
+        output.write("<h4>Generated Data</h4>")
         output.write("<table>")
         for field, schema in content.content_type.info["fields"].iteritems():
             output.write("<tr>")
@@ -31,6 +32,16 @@ class HtmlReport(object):
             output.write("</tr>")
         output.write("</table>")
 
+        if len(content.errors) > 0:
+            output.write("<h4>Validation Errors</h4>")
+            output.write("<table>")
+            for key, value in content.errors.iteritems():
+                output.write("<tr>")
+                output.write("<td>%s</td><td>%s</td>" % (key, value))
+                output.write("</tr>")
+            output.write("</table>")
+
+        output.write("<h4>Traceback</h4>")
         output.write("<pre>")
         traceback.print_exc(file=output)
         output.write("</pre>")
