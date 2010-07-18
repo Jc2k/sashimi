@@ -57,22 +57,23 @@ class ContentTypeVisitor(object):
         content_type = info["portal_type"]
         self.visit_list.append(content_type)
 
+        c = ContentType(info)
+        parent.append_child(c)
+
+        schema = info["schema"]
+        info['fields'] = {}
+        for field in schema.fields():
+            if field.getName() in ("id", "language"):
+                continue
+            field_info = self.visit_field(schema[field.getName()])
+            info['fields'][field.getName()] = field_info
+
         for allowed in info["allowed_types"]:
             if not allowed in self.content_types:
                 continue
             a = self.content_types[allowed]
-            c = ContentType(a)
-            parent.append_child(c)
-
-            schema = a["schema"]
-            a['fields'] = {}
-            for field in schema.fields():
-                if field.getName() in ("id", "language"):
-                    continue
-                field_info = self.visit_field(schema[field.getName()])
-                a['fields'][field.getName()] = field_info
-
-            # Don't descend if i'm already in the visit list: should allow Foo -> Foo, but stop Foo -> Foo -> Foo
+            # Don't descend if i'm already in the visit list:
+            #  should allow Foo -> Foo, but stop Foo -> Foo -> Foo
             if not allowed in self.visit_list:
                 self.visit_type(a, c)
 
