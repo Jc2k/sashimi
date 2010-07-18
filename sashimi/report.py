@@ -14,9 +14,7 @@ class HtmlReport(object):
         self.log.write("</body></html>")
         self.log.close()
 
-    def exception(self, content):
-        output = StringIO()
-
+    def _common_blah(self, output, content):
         output.write("<h3>%s</h3>" % content.content_type.get_breadcrumb())
 
         output.write("<h4>Generated Data</h4>")
@@ -31,6 +29,11 @@ class HtmlReport(object):
                 output.write("<td>Not set</td>")
             output.write("</tr>")
         output.write("</table>")
+
+    def exception(self, content):
+        output = StringIO()
+
+        self._common_blah(output, content)
 
         if len(content.errors) > 0:
             output.write("<h4>Validation Errors</h4>")
@@ -49,4 +52,8 @@ class HtmlReport(object):
         self.log.write(output.getvalue())
 
     def success(self, content):
-        pass
+        output = StringIO()
+        output.write("<p>Content created OK!</p>")
+        self._common_blah(output, content)
+        self.log.write(output.getvalue())
+

@@ -10,16 +10,12 @@ from sashimi.report import HtmlReport
 
 class MixinTestCase(object):
 
-    def promote(self, app, manager_user):
-        user = app.acl_users.getUserById(manager_user).__of__(app.acl_users)
-        newSecurityManager(None, user)
-        return makerequest(app)
-
     def test_fuzz(self):
         report = HtmlReport("log.html")
         report.start()
 
-        #portal = self.promote(self.portal, "editor")
+        print self.portal.portal_types[self.portal.portal_type].allowed_content_types
+
         self.loginAsPortalOwner()
 
         a = ContentTypeVisitor(self.portal)

@@ -42,24 +42,14 @@ class ContentTypeVisitor(object):
             at["_finishConstruction"] = pt._finishConstruction
             self.content_types[at["portal_type"]] = at
 
-
     def visit_types(self):
-        self.update_metadata()
-
         root = ContentTypeRoot()
 
-        all_types = frozenset(self.content_types.keys())
-        marked_types = set()
-        unavail_types = set()
+        self.update_metadata()
 
-        for content_type in all_types:
-            # Any content types i can contain cant be a root content type, unless i can contain myself
-            allowed = self.content_types[content_type]['allowed_types']
-            marked_types.update(x for x in allowed)
-
-        root_content_types = all_types - marked_types
-        for content_type in root_content_types:
-            self.visit_type(self.content_types[content_type], root)
+        ps = self.portal.portal_types[self.portal.portal_type]
+        for content_type in ps.allowed_content_types:
+             self.visit_type(self.content_types[content_type], root)
 
         return root
 

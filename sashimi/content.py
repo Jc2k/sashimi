@@ -85,6 +85,8 @@ class ContentMapVisitor(object):
             c.fuzz()
         except:
             self.report.exception(c)
+        else:
+            self.report.success(c)
 
         self.urls.append((c.url, c))
 
