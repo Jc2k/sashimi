@@ -31,7 +31,6 @@ setup(
             "uuid",
             # Dependencies for Zope/Plone testing
             "Zope2 == 2.12.8",
-            "Products.Archetypes",
             ],
     },
 )
