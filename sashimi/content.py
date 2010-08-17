@@ -66,42 +66,31 @@ class Content(Node):
 
 class ContentMapVisitor(object):
 
-    def __init__(self, map, portal):
+    def __init__(self, map):
         self.map = map
-        self.portal = portal
-        self.stack = []
-        self.urls = []
+        self.content_types = []
 
     def enter_node(self, node):
-        if not isinstance(node, ContentType):
-            return
+        self.content_type.append(node)
 
-        parent = None
-        if self.stack:
-            parent = self.stack[0]
-
-        c = Content(parent, node, self.portal)
-        try:
-            c.fuzz()
-        except:
-            self.report.exception(c)
-        else:
-            self.report.success(c)
-
-        self.urls.append((c.url, c))
-
-        self.stack.insert(0, c)
-
-    def leave_node(self, node):
-        if not isinstance(node, ContentType):
-            return
-
-        assert node == self.stack[0].content_type
-        self.stack.pop(0)
-
-    def fuzz(self, report):
-        self.report = report
-
+    def __iter__(self):
         self.map.visit(self)
-        return self.urls
+        return iter(self.content_types)
+
+
+def fuzz_content_types(map, portal, report):
+    visitor = ContentMapVisitor(map)
+    urls = []
+    for content_type in map:
+        try:
+            #FIXME: First portal is parent node
+            c = Content(portal, content_type, portal)
+            c.fuzz()
+            urls.append((c.url, c))
+        except:
+            report.exception(c)
+        else:
+            report.success(c)
+
+    return urls
 

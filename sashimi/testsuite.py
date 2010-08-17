@@ -5,7 +5,7 @@ from AccessControl.SecurityManagement import newSecurityManager
 from Testing.makerequest import makerequest
 
 from sashimi.contenttypes import ContentTypeVisitor
-from sashimi.content import ContentMapVisitor
+from sashimi.content import fuzz_content_types
 from sashimi.report import HtmlReport
 
 class MixinTestCase(object):
@@ -21,8 +21,7 @@ class MixinTestCase(object):
         a = ContentTypeVisitor(self.portal)
         map = a.visit_types()
 
-        b = ContentMapVisitor(map, self.portal)
-        urls = b.fuzz(report)
+        fuzz_content_types(map, self.portal, report)
 
         self.browser_login('editor')
 
