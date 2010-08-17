@@ -24,7 +24,10 @@ class HtmlReport(object):
             output.write("<td>%s</td>" % field)
             output.write("<td>%s</td>" % schema["type"])
             if field in content.data:
-                output.write("<td><pre>%s</pre></td>" % content.data[field])
+                if schema["type"] not in ("file", "image"):
+                    output.write("<td><pre>%s</pre></td>" % content.data[field])
+                else:
+                    output.write("<td>A file from assets/ dir</td>")
             else:
                 output.write("<td>Not set</td>")
             output.write("</tr>")
@@ -52,6 +55,7 @@ class HtmlReport(object):
         self.log.write(output.getvalue())
 
     def success(self, content):
+        return
         output = StringIO()
         output.write("<p>Content created OK!</p>")
         self._common_blah(output, content)

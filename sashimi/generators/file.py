@@ -17,6 +17,9 @@ class File(object):
     def fuzz(self, field):
         return open(sibpath("assets/test.mp3")).read()
 
+registry.register(File)
+
+
 class Image(object):
 
     @classmethod
