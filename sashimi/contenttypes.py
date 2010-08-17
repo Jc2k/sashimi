@@ -26,9 +26,8 @@ class ContentType(Node):
         return self.content_type
 
     def create(self, parent, portal):
-        c = Content(parent, self, portal)
-        c.fuzz()
-        return c
+        c = ContentFactory(parent, self, portal)
+        return c.fuzz()
 
     def create_chain(self, portal):
         # Visit this chain to its root and build a todo list
