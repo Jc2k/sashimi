@@ -59,5 +59,17 @@ class ContentFactory(object):
         self.content_type.info["_finishConstruction"](self.ob)
         transaction.commit()
 
-        self.url = self.ob.absolute_url()
+        return Content(self.ob.absolute_url(), self.data)
+
+
+class Content(object):
+
+    def __init__(self, url, data):
+        self.url = url
+        self.data = data
+
+    def browse(self, browser):
+        # For now, just hit our main URL
+        # TODO: Hit forms and pagination links
+        browser.open(self.url)
 
