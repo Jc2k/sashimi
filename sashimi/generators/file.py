@@ -1,5 +1,6 @@
-
+import os
 import random
+
 from sashimi.generators.registry import registry
 
 def sibpath(path):

@@ -1,6 +1,9 @@
+import sys
 import codecs
 import traceback
 from cStringIO import StringIO
+
+from zExceptions.ExceptionFormatter import format_exception
 
 class HtmlReport(object):
 
@@ -35,7 +38,6 @@ class HtmlReport(object):
 
     def exception(self, content):
         output = StringIO()
-
         self._common_blah(output, content)
 
         if len(content.errors) > 0:
@@ -47,9 +49,20 @@ class HtmlReport(object):
                 output.write("</tr>")
             output.write("</table>")
 
+        #output.write("<h4>Error Info</h4>")
+        #output.write("<table>")
+        #for key in ('username', 'url', 'userid', 'value', 'time', 'type', 'id'):
+        #    output.write("<tr><td>%s</td><td>%s</td></tr>" % (key, site_error[key]))
+        #output.write("</table>")
+
         output.write("<h4>Traceback</h4>")
         output.write("<pre>")
-        traceback.print_exc(file=output)
+        #srsly? there has to be a better way :(
+        tb = ''.join(format_exception(*sys.exc_info(), **{"as_html":0}))
+        idx = tb.find("<!DOCTYPE")
+        if idx >= 0:
+            tb = tb[:idx]
+        output.write(tb)
         output.write("</pre>")
 
         self.log.write(output.getvalue())

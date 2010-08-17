@@ -1,5 +1,5 @@
 
-import datetime
+from DateTime import DateTime
 from sashimi.generators.registry import registry
 
 class DatetimeFuzzer(object):
@@ -11,6 +11,6 @@ class DatetimeFuzzer(object):
         return False
 
     def fuzz(self, field):
-        return datetime.datetime.now()
+        return DateTime()
 
 registry.register(DatetimeFuzzer)

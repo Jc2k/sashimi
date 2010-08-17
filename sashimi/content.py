@@ -16,6 +16,7 @@ class Content(Node):
         self.ob = None
         self.data = {}
         self.url = None
+        self.errors = {}
 
     def fuzz_field(self, field_info, field):
         for fuzzer in registry.get_fuzzers(field_info):
@@ -54,7 +55,6 @@ class Content(Node):
             if data:
                 self.data[field] = data
 
-        self.errors = {}
         self.ob.Schema().validate(self.ob, None, self.errors, True, True)
         assert len(self.errors.keys()) == 0
 
