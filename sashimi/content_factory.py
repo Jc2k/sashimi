@@ -1,11 +1,9 @@
 import transaction
 import uuid
 
-from sashimi.node import Node
-from sashimi.contenttypes import ContentType
 from sashimi.generators.registry import registry
 
-class Content(Node):
+class ContentFactory(object):
 
     def __init__(self, parent, content_type, portal):
         self.parent_node = parent

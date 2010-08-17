@@ -25,9 +25,7 @@ def fuzz_content_types(map, portal, report):
     urls = []
     for content_type in map:
         try:
-            #FIXME: First portal is parent node
-            c = Content(portal, content_type, portal)
-            c.fuzz()
+            c = content_type.create_chain(portal)
             urls.append((c.url, c))
         except:
             report.exception(c)

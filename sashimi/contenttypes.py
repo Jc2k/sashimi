@@ -4,6 +4,8 @@ except ImportError:
     from Products.Archetypes import atapi
 
 from sashimi.node import Node
+from sashimi.content_factory import Content
+
 
 class ContentTypeRoot(Node):
 
@@ -22,6 +24,26 @@ class ContentType(Node):
         if self.parent:
             return "%s -> %s" % (self.parent.get_breadcrumb(), self.content_type)
         return self.content_type
+
+    def create(self, parent, portal):
+        c = Content(parent, self, portal)
+        c.fuzz()
+        return c
+
+    def create_chain(self, portal):
+        # Visit this chain to its root and build a todo list
+        sequence = []
+        node = self
+        while node:
+            sequence.insert(0, node)
+            node = self.parent
+
+        # Starting at the portal, build the thing.
+        parent = portal
+        for node in sequence:
+            parent = node.create(parent, portal)
+
+        return parent
 
 
 class ContentTypeVisitor(object):
