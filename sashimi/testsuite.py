@@ -5,8 +5,37 @@ from AccessControl.SecurityManagement import newSecurityManager
 from Testing.makerequest import makerequest
 
 from sashimi.contenttypes import ContentTypeVisitor
-from sashimi.content import fuzz_content_types
 from sashimi.report import HtmlReport
+
+class ContentMapVisitor(object):
+
+    def __init__(self, map):
+        self.map = map
+        self.content_types = []
+
+    def enter_node(self, node):
+        self.content_type.append(node)
+
+    def __iter__(self):
+        self.map.visit(self)
+        return iter(self.content_types)
+
+def fuzz_content_types(map, portal, report):
+    visitor = ContentMapVisitor(map)
+    urls = []
+    for content_type in map:
+        try:
+            #FIXME: First portal is parent node
+            c = Content(portal, content_type, portal)
+            c.fuzz()
+            urls.append((c.url, c))
+        except:
+            report.exception(c)
+        else:
+            report.success(c)
+
+    return urls
+
 
 class MixinTestCase(object):
 
