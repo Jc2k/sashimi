@@ -10,7 +10,7 @@ class DatetimeFuzzer(object):
             return True
         return False
 
-    def fuzz(self, field):
+    def fuzz(self, field, content_types):
         return DateTime()
 
 registry.register(DatetimeFuzzer)

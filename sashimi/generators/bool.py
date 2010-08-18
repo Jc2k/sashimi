@@ -10,7 +10,7 @@ class Bool(object):
             return True
         return False
 
-    def fuzz(self, field):
+    def fuzz(self, field, content_types):
         return random.choice((True, False))
 
 registry.register(Bool)

@@ -11,7 +11,7 @@ class TextFuzzer(object):
             return True
         return False
 
-    def fuzz(self, field):
+    def fuzz(self, field, content_types):
         return random.choice(field["vocabulary"])
 
 
@@ -23,7 +23,7 @@ class StringFuzzer(object):
             return True
         return False
 
-    def fuzz(self, field):
+    def fuzz(self, field, content_types):
         return random.choice(field["vocabulary"])
 
 
@@ -35,7 +35,7 @@ class LinesFuzzer(object):
             return True
         return False
 
-    def fuzz(self, field):
+    def fuzz(self, field, content_types):
         return random.choice(field["vocabulary"])
 
 

@@ -15,7 +15,7 @@ class File(object):
             return True
         return False
 
-    def fuzz(self, field):
+    def fuzz(self, field, content_types):
         return open(sibpath("assets/test.mp3")).read()
 
 registry.register(File)
@@ -29,7 +29,7 @@ class Image(object):
             return True
         return False
 
-    def fuzz(self, field):
+    def fuzz(self, field, content_types):
         return open(sibpath("assets/test.png")).read()
 
 registry.register(Image)

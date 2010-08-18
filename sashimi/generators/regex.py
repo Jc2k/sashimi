@@ -172,7 +172,7 @@ class RegexFuzzer(object):
             return True
         return False
 
-    def fuzz(self, field):
+    def fuzz(self, field, content_types):
         return get_regex_tree(field['regex']).random()
 
 registry.register(RegexFuzzer)

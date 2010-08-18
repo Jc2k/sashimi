@@ -16,14 +16,14 @@ class CreateSiteStructure(object):
         self.created = []
 
     def enter_node(self, node):
-        try:
-            c = node.create(self.parents[-1], self.portal)
-            assert len(c.errors) == 0
-            self.created.append(c)
-        except:
-            self.report.exception(c)
-        else:
-            self.report.success(c)
+        #try:
+        c = node.create(self.parents[-1], self.portal)
+        assert len(c.errors) == 0
+        self.created.append(c)
+        #except:
+        #    self.report.exception(c)
+        #else:
+        #    self.report.success(c)
         self.parents.append(c)
 
     def leave_node(self, node):

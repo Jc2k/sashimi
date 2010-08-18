@@ -51,7 +51,7 @@ class TextFuzzer(object):
                 return True
         return False
 
-    def fuzz(self, field):
+    def fuzz(self, field, content_types):
         return self.ipsum.get_paragraphs()
 
 
@@ -66,7 +66,7 @@ class StringFuzzer(object):
                 return True
         return False
 
-    def fuzz(self, field):
+    def fuzz(self, field, content_types):
         return self.ipsum.get_sentence()
 
 
@@ -81,7 +81,7 @@ class LinesFuzzer(object):
                 return True
         return False
 
-    def fuzz(self, field):
+    def fuzz(self, field, content_types):
         return "\n".join(self.ipsum.get_sentence() for x in range(random.randint(3, 10)))
 
 

@@ -11,8 +11,8 @@ class Reference(object):
             return True
         return False
 
-    def fuzz(self, field):
-        return None
+    def fuzz(self, field, content_types):
+        return content_types.portal
 
 registry.register(Reference)
 

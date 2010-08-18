@@ -18,7 +18,8 @@ class ContentTypeRoot(Node):
 
     def create(self, parent, portal):
         class Dummy(object):
-            pass
+            def browse(self, browser):
+                pass
         dummy = Dummy()
         dummy.content_type = self
         dummy.url = portal.absolute_url()
@@ -33,8 +34,9 @@ class ContentTypeRoot(Node):
 
 class ContentType(Node):
 
-    def __init__(self, info):
+    def __init__(self, info, container):
         super(ContentType, self).__init__()
+        self.container = container
         self.content_type = info["portal_type"]
         self.info = info
 
@@ -44,7 +46,7 @@ class ContentType(Node):
         return self.content_type
 
     def create(self, parent, portal):
-        c = ContentFactory(parent, self, portal)
+        c = ContentFactory(parent, self, portal, self.container)
         return c.fuzz()
 
     def create_chain(self, portal):
@@ -72,6 +74,9 @@ class ContentTypeVisitor(object):
         self.visit_list = []
         self.content_types = set()
 
+        # How to build a chain of content given a content type
+        self.chains = {}
+
     def update_metadata(self):
         self.content_types = {}
         for atapi_info in atapi.listTypes():
@@ -98,7 +103,7 @@ class ContentTypeVisitor(object):
         content_type = info["portal_type"]
         self.visit_list.append(content_type)
 
-        c = ContentType(info)
+        c = ContentType(info, self)
         parent.append_child(c)
 
         schema = info["schema"]
@@ -117,6 +122,8 @@ class ContentTypeVisitor(object):
             #  should allow Foo -> Foo, but stop Foo -> Foo -> Foo
             if not allowed in self.visit_list:
                 self.visit_type(a, c)
+
+        self.chains.setdefault(content_type, []).append(c)
 
         self.visit_list.remove(content_type)
 
@@ -146,4 +153,7 @@ class ContentTypeVisitor(object):
             info["vocabulary"] = [x for x in field.vocabulary]
 
         return info
+
+    def get_chains_for_content_type(self, content_type):
+        return self.chains[content_type]
 

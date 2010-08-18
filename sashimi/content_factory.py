@@ -5,17 +5,18 @@ from sashimi.generators.registry import registry
 
 class ContentFactory(object):
 
-    def __init__(self, parent, content_type, portal):
+    def __init__(self, parent, content_type, portal, content_types):
         self.parent_node = parent
         self.content_type = content_type
         self.portal = portal
+        self.content_types = content_types
 
         self.id = str(uuid.uuid4())
         self.errors = {}
 
     def fuzz_field(self, field_info, field, ob):
         for fuzzer in registry.get_fuzzers(field_info):
-            data = fuzzer.fuzz(field_info)
+            data = fuzzer.fuzz(field_info, self.content_types)
             mutator = field.getMutator(ob)
             if mutator:
                 mutator(data)
