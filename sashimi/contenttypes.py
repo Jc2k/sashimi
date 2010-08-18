@@ -4,13 +4,24 @@ except ImportError:
     from Products.Archetypes import atapi
 
 from sashimi.node import Node
-from sashimi.content_factory import Content
+from sashimi.content_factory import ContentFactory
 
 
 class ContentTypeRoot(Node):
 
     def get_breadcrumb(self):
         return "Site Root"
+
+    def create(self, parent, portal):
+        class Dummy:
+            url = portal.absolute_url()
+            ob = portal
+            data = {}
+            errors = {}
+        return Dummy()
+
+    def create_chain(self, portal):
+        return self.create(None, portal)
 
 
 class ContentType(Node):
@@ -35,13 +46,15 @@ class ContentType(Node):
         node = self
         while node:
             sequence.insert(0, node)
-            node = self.parent
+            node = node.parent
+            #FIXME: HACK
+            if isinstance(node, ContentTypeRoot):
+                break
 
         # Starting at the portal, build the thing.
-        parent = portal
+        parent = None
         for node in sequence:
             parent = node.create(parent, portal)
-
         return parent
 
 

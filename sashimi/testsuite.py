@@ -14,7 +14,10 @@ class ContentMapVisitor(object):
         self.content_types = []
 
     def enter_node(self, node):
-        self.content_type.append(node)
+        self.content_types.append(node)
+
+    def leave_node(self, node):
+        pass
 
     def __iter__(self):
         self.map.visit(self)
@@ -23,10 +26,11 @@ class ContentMapVisitor(object):
 def fuzz_content_types(map, portal, report):
     visitor = ContentMapVisitor(map)
     urls = []
-    for content_type in map:
+    for content_type in visitor:
         try:
             c = content_type.create_chain(portal)
-            urls.append((c.url, c))
+            assert len(c.errors) == 0
+            urls.append(c)
         except:
             report.exception(c)
         else:
@@ -41,8 +45,6 @@ class MixinTestCase(object):
         report = HtmlReport("log.html")
         report.start()
 
-        print self.portal.portal_types[self.portal.portal_type].allowed_content_types
-
         self.loginAsPortalOwner()
 
         a = ContentTypeVisitor(self.portal)
@@ -52,14 +54,13 @@ class MixinTestCase(object):
 
         self.browser_login('editor')
 
-        for url, content in urls:
+        for content in urls:
             try:
-                self.browser.open(url)
+                content.browse(self.browser)
             except:
                 report.exception(content)
-                continue
-
-            report.success(content)
+            else:
+                report.success(content)
 
         report.finish()
 

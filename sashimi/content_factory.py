@@ -60,19 +60,19 @@ class ContentFactory(object):
         self.fuzz_fields(self.content_type, ob)
 
         ob.Schema().validate(ob, None, errors, True, True)
-        assert len(errors.keys()) == 0
 
         self.content_type.info["_finishConstruction"](ob)
         transaction.commit()
 
-        return Content(ob, ob.absolute_url(), data)
+        return Content(ob, ob.absolute_url(), self.content_type, data, errors)
 
 
 class Content(object):
 
-    def __init__(self, ob, url, data, errors):
+    def __init__(self, ob, url, content_type, data, errors):
         self.ob = ob
         self.url = url
+        self.content_type = content_type
         self.data = data
         self.errors = errors
 
