@@ -7,36 +7,32 @@ from Testing.makerequest import makerequest
 from sashimi.contenttypes import ContentTypeVisitor
 from sashimi.report import HtmlReport
 
-class ContentMapVisitor(object):
+class CreateSiteStructure(object):
 
-    def __init__(self, map):
+    def __init__(self, map, portal):
         self.map = map
-        self.content_types = []
+        self.portal = portal
+        self.parents = [None]
+        self.created = []
 
     def enter_node(self, node):
-        self.content_types.append(node)
+        try:
+            c = node.create(self.parents[-1], self.portal)
+            assert len(c.errors) == 0
+            self.created.append(c)
+        except:
+            self.report.exception(c)
+        else:
+            self.report.success(c)
+        self.parents.append(c)
 
     def leave_node(self, node):
-        pass
+        self.parents.pop()
 
-    def __iter__(self):
+    def create(self, report):
+        self.report = report
         self.map.visit(self)
-        return iter(self.content_types)
-
-def fuzz_content_types(map, portal, report):
-    visitor = ContentMapVisitor(map)
-    urls = []
-    for content_type in visitor:
-        try:
-            c = content_type.create_chain(portal)
-            assert len(c.errors) == 0
-            urls.append(c)
-        except:
-            report.exception(c)
-        else:
-            report.success(c)
-
-    return urls
+        return self.created
 
 
 class MixinTestCase(object):
@@ -50,7 +46,7 @@ class MixinTestCase(object):
         a = ContentTypeVisitor(self.portal)
         map = a.visit_types()
 
-        fuzz_content_types(map, self.portal, report)
+        urls = CreateSiteStructure(map, self.portal).create(report)
 
         self.browser_login('editor')
 

@@ -9,16 +9,23 @@ from sashimi.content_factory import ContentFactory
 
 class ContentTypeRoot(Node):
 
+    info = {
+        "fields": {},
+    }
+
     def get_breadcrumb(self):
         return "Site Root"
 
     def create(self, parent, portal):
-        class Dummy:
-            url = portal.absolute_url()
-            ob = portal
-            data = {}
-            errors = {}
-        return Dummy()
+        class Dummy(object):
+            pass
+        dummy = Dummy()
+        dummy.content_type = self
+        dummy.url = portal.absolute_url()
+        dummy.ob = portal
+        dummy.data = {}
+        dummy.errors = {}
+        return dummy
 
     def create_chain(self, portal):
         return self.create(None, portal)

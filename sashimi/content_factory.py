@@ -45,6 +45,8 @@ class ContentFactory(object):
         else:
             parent = self.portal
 
+        print self.content_type.get_breadcrumb()
+
         try:
             self.portal.portal_types.constructContent(self.content_type.content_type, parent, self.id, None)
         except:
@@ -55,16 +57,13 @@ class ContentFactory(object):
         if "schema" not in dir(ob):
             return
 
-        print self.content_type.get_breadcrumb()
-
-        self.fuzz_fields(self.content_type, ob)
-
-        ob.Schema().validate(ob, None, errors, True, True)
-
-        self.content_type.info["_finishConstruction"](ob)
-        transaction.commit()
-
-        return Content(ob, ob.absolute_url(), self.content_type, data, errors)
+        try:
+            self.fuzz_fields(self.content_type, ob)
+            ob.Schema().validate(ob, None, errors, True, True)
+            self.content_type.info["_finishConstruction"](ob)
+            transaction.commit()
+        finally:
+            return Content(ob, ob.absolute_url(), self.content_type, data, errors)
 
 
 class Content(object):
