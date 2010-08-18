@@ -58,7 +58,7 @@ class ContentFactory(object):
             return
 
         try:
-            self.fuzz_fields(self.content_type, ob)
+            data = self.fuzz_fields(self.content_type, ob)
             ob.Schema().validate(ob, None, errors, True, True)
             self.content_type.info["_finishConstruction"](ob)
             transaction.commit()
