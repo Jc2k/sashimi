@@ -12,7 +12,9 @@ class Reference(object):
         return False
 
     def fuzz(self, field, content_types):
-        return content_types.portal
+        for pt, ct in content_types.portal.objectItems():
+            if pt in content_types.chains:
+                return ct.UID()
 
 registry.register(Reference)
 

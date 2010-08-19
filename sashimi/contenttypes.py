@@ -26,6 +26,7 @@ class ContentTypeRoot(Node):
         dummy.ob = portal
         dummy.data = {}
         dummy.errors = {}
+        dummy.traceback = None
         return dummy
 
     def create_chain(self, portal):

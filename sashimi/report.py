@@ -58,7 +58,10 @@ class HtmlReport(object):
         output.write("<h4>Traceback</h4>")
         output.write("<pre>")
         #srsly? there has to be a better way :(
-        tb = ''.join(format_exception(*sys.exc_info(), **{"as_html":0}))
+        traceback = content.traceback
+        if not traceback:
+            traceback = sys.exc_info()
+        tb = ''.join(format_exception(*traceback, **{"as_html":0}))
         idx = tb.find("<!DOCTYPE")
         if idx >= 0:
             tb = tb[:idx]

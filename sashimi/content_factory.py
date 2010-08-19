@@ -1,3 +1,4 @@
+import sys
 import transaction
 import uuid
 
@@ -23,18 +24,14 @@ class ContentFactory(object):
                 return data
         return None
 
-    def fuzz_fields(self, content_type, ob):
-        data = {}
-
-        for field, info in content_type.info["fields"].iteritems():
+    def fuzz_fields(self, c):
+        for field, info in c.content_type.info["fields"].iteritems():
             if not info['visible']:
                 continue
 
-            field_data = self.fuzz_field(info, info["field"], ob)
+            field_data = self.fuzz_field(info, info["field"], c.ob)
             if field_data:
-                data[field] = field_data
-
-        return data
+                c.data[field] = field_data
 
     def fuzz(self):
         errors = {}
@@ -58,23 +55,30 @@ class ContentFactory(object):
         if "schema" not in dir(ob):
             return
 
+        c = Content(ob, self.content_type)
+
         try:
-            data = self.fuzz_fields(self.content_type, ob)
-            ob.Schema().validate(ob, None, errors, True, True)
+            self.fuzz_fields(c)
+            ob.Schema().validate(ob, None, c.errors, True, True)
             self.content_type.info["_finishConstruction"](ob)
             transaction.commit()
-        finally:
-            return Content(ob, ob.absolute_url(), self.content_type, data, errors)
+        except:
+            c.traceback = sys.exc_info()
+
+        c.url = ob.absolute_url()
+        return c
 
 
 class Content(object):
 
-    def __init__(self, ob, url, content_type, data, errors):
+    def __init__(self, ob, content_type):
         self.ob = ob
-        self.url = url
         self.content_type = content_type
-        self.data = data
-        self.errors = errors
+
+        self.url = None
+        self.data = {}
+        self.errors = {}
+        self.traceback = None
 
     def browse(self, browser):
         # For now, just hit our main URL
