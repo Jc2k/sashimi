@@ -1,4 +1,6 @@
 import unittest
+import re
+
 import mock
 
 from sashimi.generators.regex import get_regex_tree
@@ -29,6 +31,11 @@ class TestReqex(unittest.TestCase):
         a = get_regex_tree("((foo|bar)|baz)")
         self.failUnlessEqual(a.graph(), "Sq(Al(Sq(Al(Sq(Ch,Ch,Ch),Sq(Ch,Ch,Ch))),Sq(Ch,Ch,Ch)))")
 
+    def test_url_regex(self):
+        a = get_regex_tree(r'(http|ssh)s?://[^\s\r\n]+')
+        self.failUnlessEqual(a.graph(),
+            "Sq(Al(Sq(Ch,Ch,Ch,Ch),Sq(Ch,Ch,Ch)),Re(Ch),Ch,Ch,Ch,Re(Cc^(Cc,Ch,Ch)))")
+
 
 class TestRegexGeneration(unittest.TestCase):
 
@@ -53,4 +60,13 @@ class TestRegexGeneration(unittest.TestCase):
             "foobaz",
             "barbaz",
             ])
+
+    def test_url_regex(self):
+        regex = r'(http|ssh)s?://[^\s\r\n]+'
+        matcher = re.compile(regex)
+        a = get_regex_tree(regex)
+        for i in range(50):
+            subject = a.random()
+            if not matcher.match(subject):
+                raise ValueError("'%s' isnt right!" % subject)
 

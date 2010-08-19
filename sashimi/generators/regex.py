@@ -1,5 +1,7 @@
 
 import random
+import unicodedata
+from string import printable
 
 from sashimi.node import Node
 from sashimi.generators.registry import registry
@@ -11,6 +13,9 @@ class Character(Node):
     def __init__(self, character):
         super(Character, self).__init__()
         self.character = character
+
+    def all(self):
+        yield self.character
 
     def random(self):
         return self.character
@@ -46,6 +51,43 @@ class Repetition(Node):
         return "".join(self.children[0].random() for i in range(self.min, max))
 
 
+class CharacterClass(Node):
+    name = "Cc"
+
+    def __init__(self, negated, characters=None):
+        super(CharacterClass, self).__init__()
+        self.negated = negated
+        self.characters = []
+        if characters:
+            self.characters.extend(characters)
+
+        if self.negated:
+            self.name += "^"
+
+    def all(self):
+        for char in self.characters:
+            yield char
+        for child in self.children:
+            for char in child.all():
+                yield char
+
+    def random(self):
+        characters = set(list(self.all()))
+        if self.negated:
+            negation = set(all_chars)
+            characters = negation - characters
+
+        retval = random.choice(list(characters))
+        return retval
+
+#swap these round for spammy unicode fun
+#all_chars = (unichr(i) for i in xrange(0x110000))
+all_chars = [unicode(c) for c in printable if c not in "\x0b\x0c"]
+digits = [str(x) for x in range(10)]
+words = [c for c in all_chars if unicodedata.category(c).startswith("L")] + digits + ["_"]
+spaces = [" ", "\t", "\n", "\r"]
+
+
 class Tokenizer(object):
 
     def __init__(self):
@@ -62,20 +104,12 @@ class Tokenizer(object):
                 ccpos = self.pos + 1
 
                 # Switch table of all "\F" type escapes we support
-                if regex[ccpos] == "s":
-                    pass
-                elif regex[ccpos] == "S":
-                    pass
-                elif regex[ccpos] == "d":
-                    pass
-                elif regex[ccpos] == "w":
-                    pass
-                elif regex[ccpos] == "W":
-                    pass
-                elif regex[ccpos] == "b":
-                    pass
-                elif regex[ccpos] == "B":
-                    pass
+                if regex[ccpos] in ("s", "S", "w", "W", "d", "D"):
+                    visitor.builtin_class(regex[ccpos])
+                elif regex[ccpos] == "r":
+                    visitor.character("\r")
+                elif regex[ccpos] == "n":
+                    visitor.character("\n")
                 elif regex[ccpos] == "\\":
                     visitor.character("\\")
                 elif regex[ccpos] == "(":
@@ -114,6 +148,16 @@ class Tokenizer(object):
                     raise ValueError("Error in regex, and i need a better error message")
                 visitor.repetition(min, max)
                 self.pos = endpos + 1
+            elif regex[self.pos] == "[":
+                if regex[self.pos+1] == "^":
+                    visitor.start_class(True)
+                    self.pos += 2
+                else:
+                    visitor.start_class(False)
+                    self.pos += 1
+            elif regex[self.pos] == "]":
+                visitor.end_class()
+                self.pos += 1
             else:
                 visitor.character(regex[self.pos])
                 self.pos += 1
@@ -132,6 +176,8 @@ class TreeGenerator(object):
         self.last_leaf = c
 
     def start_group(self):
+        if isinstance(self.last_branch, CharacterClass):
+            raise ValueError("Cannot have a group inside a character class")
         group = Alternative()
         child = Sequence()
         group.append_child(child)
@@ -148,10 +194,36 @@ class TreeGenerator(object):
         self.last_leaf = child
 
     def end_group(self):
+        #FIxME: I don't trust this, see end_class()
         self.last_leaf = self.last_branch.parent
         self.last_branch = self.last_branch.parent.parent
 
+    def builtin_class(self, cls):
+        cc = {
+            "s": CharacterClass(False, spaces),
+            "S": CharacterClass(True, spaces),
+            "w": CharacterClass(False, words),
+            "W": CharacterClass(True, words),
+            "d": CharacterClass(False, digits),
+            "D": CharacterClass(True, digits),
+            }[cls]
+
+        self.last_branch.append_child(cc)
+        self.last_leaf = cc
+
+    def start_class(self, negated):
+        cc = CharacterClass(negated)
+        self.last_branch.append_child(cc)
+        self.last_branch = cc
+        self.last_leaf = cc
+
+    def end_class(self):
+        self.last_leaf = self.last_branch
+        self.last_branch = self.last_branch.parent
+
     def repetition(self, min=0, max=-1):
+        if isinstance(self.last_branch, CharacterClass):
+            raise ValueError("Cannot have a repetition inside a character class")
         r = Repetition(self.last_leaf, min, max)
         self.last_branch.append_child(r)
         self.last_leaf = r
