@@ -141,9 +141,9 @@ class ContentTypeVisitor(object):
 
         info['type'] = field.type
 
-        for validator in field.validators:
+        for validator, priority in field.validators:
             if hasattr(validator, "regex"):
-                info["regex"] = validator.regex
+                info["regex"] = validator.regex_strings[0]
             if hasattr(validator, "min"):
                 info["min"] = validator.min
             if hasattr(validator, "max"):
