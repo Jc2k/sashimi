@@ -45,11 +45,7 @@ class ContentFactory(object):
 
         print self.content_type.get_breadcrumb()
 
-        try:
-            self.portal.portal_types.constructContent(self.content_type.content_type, parent, self.id, None)
-        except:
-            #AccessControl_Unauthorized ?
-            return
+        parent.invokeFactory(self.content_type.content_type, self.id)
         ob = parent.get(self.id)
 
         if "schema" not in dir(ob):
@@ -60,7 +56,6 @@ class ContentFactory(object):
         try:
             self.fuzz_fields(c)
             ob.Schema().validate(ob, None, c.errors, True, True)
-            self.content_type.info["_finishConstruction"](ob)
             transaction.commit()
         except:
             c.traceback = sys.exc_info()
