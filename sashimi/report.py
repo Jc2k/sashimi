@@ -1,6 +1,8 @@
 import sys
 import codecs
 import traceback
+import re
+import cgi
 from cStringIO import StringIO
 
 from zExceptions.ExceptionFormatter import format_exception
@@ -9,11 +11,41 @@ class HtmlReport(object):
 
     def __init__(self, log):
         self.log = codecs.open(log, "w", "utf-8")
+        self.successes = 0
+        self.exceptions = 0
+        self.exception_log = {}
+
+        self.traceback_info_re = re.compile(r"- __traceback_info__: (.*)$", re.M)
 
     def start(self):
-        self.log.write("<html><head><title>Fuzzing Report</title></head><body>")
+        style = "<style>h2 pre { display: inline; }</style>"
+        self.log.write("<html><head><title>Fuzzing Report</title>%s</head><body>" % style)
 
     def finish(self):
+        self.log.write("<h2>Summary</h2>")
+        self.log.write("<p>%d tests done, %d successes, %d failures</p>" % (self.successes+self.exceptions, self.successes, self.exceptions))
+
+        keys = self.exception_log.keys()
+        keys.sort()
+
+        self.log.write('<table cellspacing="0" cellpadding="2">')
+        self.log.write("<tr><th>Go</th><th>Exception</th><th>TB Info</th><th>Occurences</th></tr>")
+        for i, key in enumerate(keys):
+            row_class = i % 2 and 'even' or 'odd'
+            self.log.write('<tr class="%s">' % row_class )
+            self.log.write("<td><a href='#%s'>&darr;</a></td>" % hash(key))
+            self.log.write("<td><pre>%s</pre></td>" % key[0])
+            self.log.write("<td><pre>%s</pre></td>" % key[1])
+            self.log.write("<td>%d</td>" % len(self.exception_log[key]))
+            self.log.write("</tr>")
+        self.log.write("</table>")
+
+        for key, info in self.exception_log.iteritems():
+            self.log.write("<h2><a name='%s'>Exception: <pre>%s</pre>, TB Info: <pre>%s</pre></a></h2>" %
+                (hash(key), key[0], key[1]))
+            for error in info:
+                self.log.write(error.getvalue())
+
         self.log.write("</body></html>")
         self.log.close()
 
@@ -37,6 +69,8 @@ class HtmlReport(object):
         output.write("</table>")
 
     def exception(self, content):
+        self.exceptions += 1
+
         output = StringIO()
         self._common_blah(output, content)
 
@@ -64,13 +98,17 @@ class HtmlReport(object):
         tb = ''.join(format_exception(*traceback, **{"as_html":0}))
         idx = tb.find("<!DOCTYPE")
         if idx >= 0:
-            tb = tb[:idx]
-        output.write(tb)
+            tb = tb[:idx].strip()
+        output.write(cgi.escape(tb))
         output.write("</pre>")
 
-        self.log.write(output.getvalue())
+        tb_info = "".join(self.traceback_info_re.findall(tb)[-1:])
+        exception = "".join(tb.strip().split("\n")[-1:])
+
+        self.exception_log.setdefault((exception, tb_info), []).append(output)
 
     def success(self, content):
+        self.successes += 1
         return
         output = StringIO()
         output.write("<p>Content created OK!</p>")
