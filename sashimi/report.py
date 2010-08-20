@@ -18,7 +18,26 @@ class HtmlReport(object):
         self.traceback_info_re = re.compile(r"- __traceback_info__: (.*)$", re.M)
 
     def start(self):
-        style = "<style>h2 pre { display: inline; }</style>"
+        style = "\n".join((
+            "<style>",
+            "h2 pre {",
+            "  display: inline;",
+            "}",
+            "th {",
+            "  background: #ddd;",
+            "}",
+            "tr.odd {",
+            "  background: #eee;",
+            "}",
+            "tr.even {",
+            "  background: #fff;",
+            "}",
+            "td.exception {",
+            "  font-weight: bold;",
+            "}",
+            "</style>",
+            ))
+
         self.log.write("<html><head><title>Fuzzing Report</title>%s</head><body>" % style)
 
     def finish(self):
@@ -34,7 +53,7 @@ class HtmlReport(object):
             row_class = i % 2 and 'even' or 'odd'
             self.log.write('<tr class="%s">' % row_class )
             self.log.write("<td><a href='#%s'>&darr;</a></td>" % hash(key))
-            self.log.write("<td><pre>%s</pre></td>" % key[0])
+            self.log.write("<td class='exception'><pre>%s</pre></td>" % key[0])
             self.log.write("<td><pre>%s</pre></td>" % key[1])
             self.log.write("<td>%d</td>" % len(self.exception_log[key]))
             self.log.write("</tr>")
