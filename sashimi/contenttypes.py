@@ -149,6 +149,11 @@ class ContentTypeVisitor(object):
             if hasattr(validator, "max"):
                 info["max"] = validator.max
 
+        # Capture information about reference fields
+        if field.type == "reference":
+            info["multi_valued"] = field.multiValued
+            info["allowed_types"] = field.allowed_types
+
         # If this field has a list of acceptable values, capture a list of them
         if hasattr(field, "enforceVocabulary") and field.enforceVocabulary:
             info["vocabulary"] = [x for x in field.vocabulary]
