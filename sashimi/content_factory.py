@@ -2,6 +2,9 @@ import sys
 import transaction
 import uuid
 
+from Products.Archetypes.event import ObjectInitializedEvent
+from zope import event
+
 from sashimi.generators.registry import registry
 
 class ContentFactory(object):
@@ -56,6 +59,13 @@ class ContentFactory(object):
         try:
             self.fuzz_fields(c)
             ob.Schema().validate(ob, None, c.errors, True, True)
+
+            # Because this is a programmatic object creation, certain things dont happen
+            # that we want to. Short term we can just force them, long term we probably
+            # need to do POST's to create our objects?
+            event.notify(ObjectInitializedEvent(ob))
+            ob.at_post_create_script()
+
             transaction.commit()
         except:
             c.traceback = sys.exc_info()
