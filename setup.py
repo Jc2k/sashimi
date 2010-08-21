@@ -31,6 +31,9 @@ setup(
             "uuid",
             # Dependencies for Zope/Plone testing
             "Zope2 == 2.12.8",
+            "Products.CMFCore == 2.2.1",
+            "Products.PluggableAuthService == 1.5.3",
+            "Interface >= 2.11.1",
             "Products.Archetypes",
             ],
     },
