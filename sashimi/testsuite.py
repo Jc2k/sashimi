@@ -46,7 +46,11 @@ class MixinTestCase(object):
 
         urls = CreateSiteStructure(map, self.portal).create(report)
 
-        self.browser_login('editor')
+        try:
+            self.browser_login('editor')
+        except:
+            # login will generally work, but the redirect to /portal might kill us
+            pass
 
         for content in urls:
             try:
