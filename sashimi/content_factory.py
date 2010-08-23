@@ -6,6 +6,7 @@ from Products.Archetypes.event import ObjectInitializedEvent
 from zope import event
 
 from sashimi.generators.registry import registry
+from sashimi.pythonscript import PythonScript
 
 class ContentFactory(object):
 
@@ -36,6 +37,12 @@ class ContentFactory(object):
             if field_data:
                 c.data[field] = field_data
 
+    def should_skip(self, parent, content_type):
+        script = self.portal.getSkin().getNotAddableTypes._filepath
+        not_addable = PythonScript(script, context=parent)()
+        print content_type.content_type, content_type.content_type in not_addable
+        return content_type.content_type in not_addable
+
     def fuzz(self):
         errors = {}
         data = {}
@@ -46,13 +53,16 @@ class ContentFactory(object):
         else:
             parent = self.portal
 
+        if self.should_skip(parent, self.content_type):
+            return None
+
         print self.content_type.get_breadcrumb()
 
         parent.invokeFactory(self.content_type.content_type, self.id)
         ob = parent.get(self.id)
 
         if "schema" not in dir(ob):
-            return
+            return None
 
         c = Content(ob, self.content_type)
 

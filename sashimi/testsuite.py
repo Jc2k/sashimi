@@ -12,15 +12,28 @@ class CreateSiteStructure(object):
     def __init__(self, map, portal):
         self.map = map
         self.portal = portal
-        self.parents = [None]
+        self.parents = [portal]
         self.created = []
 
     def enter_node(self, node):
+        # If parent is invalid, skip all children
+        if not self.parents[-1]:
+            self.parents.append(None)
+            return
+
         c = node.create(self.parents[-1], self.portal)
+
+        # If can't create content, skip!
+        if not c:
+            self.parents.append(None)
+            return
+
+        # Report error or success
         if c.traceback or len(c.errors) > 0:
             self.report.exception(c)
         else:
             self.report.success(c)
+
         self.created.append(c)
         self.parents.append(c)
 
