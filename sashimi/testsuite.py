@@ -7,6 +7,10 @@ from Testing.makerequest import makerequest
 from sashimi.contenttypes import ContentTypeVisitor
 from sashimi.report import HtmlReport
 
+# So we can inspect our dead site
+#from Testing.ZopeTestCase.utils import startZServer
+#startZServer()
+
 class CreateSiteStructure(object):
 
     def __init__(self, map, portal):
