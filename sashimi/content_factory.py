@@ -48,10 +48,11 @@ class ContentFactory(object):
         data = {}
         info = self.content_type.info
 
-        if self.parent_node:
+        #FIXME: Refactor this away...
+        try:
             parent = self.parent_node.ob
-        else:
-            parent = self.portal
+        except AttributeError:
+            parent = self.parent_node
 
         if self.should_skip(parent, self.content_type):
             return None
@@ -69,6 +70,7 @@ class ContentFactory(object):
         try:
             self.fuzz_fields(c)
             ob.Schema().validate(ob, None, c.errors, True, True)
+            ob.reindexObject()
 
             # Because this is a programmatic object creation, certain things dont happen
             # that we want to. Short term we can just force them, long term we probably

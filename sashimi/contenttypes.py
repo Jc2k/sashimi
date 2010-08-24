@@ -5,7 +5,7 @@ except ImportError:
 
 from sashimi.node import Node
 from sashimi.content_factory import ContentFactory
-
+import random
 
 class ContentTypeRoot(Node):
 
@@ -30,7 +30,7 @@ class ContentTypeRoot(Node):
         return dummy
 
     def create_chain(self, portal):
-        return self.create(None, portal)
+        return self.create(portal, portal)
 
 
 class ContentType(Node):
@@ -50,21 +50,35 @@ class ContentType(Node):
         c = ContentFactory(parent, self, portal, self.container)
         return c.fuzz()
 
-    def create_chain(self, portal):
+    def create_chain(self, portal, lazy=False):
         # Visit this chain to its root and build a todo list
+        parent = None
         sequence = []
         node = self
         while node:
             sequence.insert(0, node)
             node = node.parent
+
             #FIXME: HACK
             if isinstance(node, ContentTypeRoot):
                 break
 
+            if lazy:
+                parents = portal.portal_catalog(portal_type=node.content_type)
+                if parents:
+                    parent = random.choice(parents).getObject()
+                    break
+
+        print self.content_type, parent, [node.content_type for node in sequence]
+
         # Starting at the portal, build the thing.
-        parent = None
         for node in sequence:
             parent = node.create(parent, portal)
+            if not parent:
+                return None
+            if parent.traceback:
+                raise parent.traceback[1]
+
         return parent
 
 

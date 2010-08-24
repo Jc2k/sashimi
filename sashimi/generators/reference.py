@@ -26,7 +26,7 @@ class Reference(object):
 
             # We dont have one, create one
             ct = random.choice(content_types.chains[pt])
-            new_obj = ct.create_chain(content_types.portal)
+            new_obj = ct.create_chain(content_types.portal, lazy=True)
             return new_obj.ob.UID()
 
         for pt, ct in content_types.portal.objectItems():
