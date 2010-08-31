@@ -74,7 +74,7 @@ class ContentType(Node):
         # Starting at the portal, build the thing.
         for node in sequence:
             parent = node.create(parent, portal)
-            if not parent:
+            if not parent or not parent.ob:
                 return None
             if parent.traceback:
                 raise parent.traceback[1]
