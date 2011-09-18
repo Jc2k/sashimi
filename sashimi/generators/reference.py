@@ -1,7 +1,10 @@
 import os
 import random
 
-from Products.CMFCore.utils import getToolByName
+try:
+    from Products.CMFCore.utils import getToolByName
+except ImportError:
+    pass
 
 from sashimi.generators.registry import registry
 

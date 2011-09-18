@@ -1,5 +1,9 @@
 
-from DateTime import DateTime
+try:
+    from DateTime import DateTime
+except ImportError:
+    pass
+
 from sashimi.generators.registry import registry
 
 class DatetimeFuzzer(object):

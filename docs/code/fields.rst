@@ -6,63 +6,63 @@ Field Fuzzing
 Bool
 ----
 
-.. autoclass:: bool.Bool()
+.. autoclass:: sashimi.generators.bool.Bool()
    :members:
 
 Numbers
 -------
 
-.. autoclass:: numbers.Numbers()
+.. autoclass:: sashimi.generators.numbers.Numbers()
    :members:
 
 Date & Time
 -----------
 
-.. autoclass:: dtfuzz.DatetimeFuzzer()
+.. autoclass:: sashimi.generators.dtfuzz.DatetimeFuzzer()
    :members:
 
 Vocabulary
 ----------
 
-.. autoclass:: vocabulary.TextFuzzer()
+.. autoclass:: sashimi.generators.vocabulary.TextFuzzer()
    :members:
 
-.. autoclass:: vocabulary.StringFuzzer()
+.. autoclass:: sashimi.generators.vocabulary.StringFuzzer()
    :members:
 
-.. autoclass:: vocabulary.LinesFuzzer()
+.. autoclass:: sashimi.generators.vocabulary.LinesFuzzer()
 
 Reference
 ---------
 
-.. autoclass:: reference.Reference()
+.. autoclass:: sashimi.generators.reference.Reference()
    :members:
 
 File
 ----
 
-.. autoclass:: file.File()
+.. autoclass:: sashimi.generators.file.File()
    :members:
 
 Regex
 -----
 
-.. autoclass:: regex.RegexFuzzer()
+.. autoclass:: sashimi.generators.regex.RegexFuzzer()
    :members:
 
 Ipsum
 -----
 
-.. autoclass:: ipsum.TextFuzzer()
+.. autoclass:: sashimi.generators.ipsum.TextFuzzer()
    :members:
 
-.. autoclass:: ipsum.StringFuzzer()
+.. autoclass:: sashimi.generators.ipsum.StringFuzzer()
    :members:
 
-.. autoclass:: ipsum.LinesFuzzer()
+.. autoclass:: sashimi.generators.ipsum.LinesFuzzer()
    :members:
 
-.. autoclass:: ipsum.Ipsum()
+.. autoclass:: sashimi.generators.ipsum.Ipsum()
    :members:
 
 
