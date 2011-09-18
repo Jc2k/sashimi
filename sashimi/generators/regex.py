@@ -90,6 +90,10 @@ spaces = [" ", "\t", "\n", "\r"]
 
 class Tokenizer(object):
 
+    """
+    Given a regex string and visitor class, visit all tokens.
+    """
+
     def __init__(self):
         self.pos = 0
 
@@ -165,17 +169,29 @@ class Tokenizer(object):
 
 class TreeGenerator(object):
 
+    """
+    This is a visitor class that is paired with a tokenizer/parser to
+    build a node graph. Each method is an event encountered by the parser
+    directing, such as the start of a group or having encountered a character
+    class
+
+    :py:member:`root` is a :py:class:`Sequence`, and will be the object of
+    interest after the parsing is complete.
+    """
+
     def __init__(self):
         self.root = Sequence()
         self.last_branch = self.root
         self.last_leaf = self.last_branch
 
     def character(self, character):
+        """ Called when a literal character is encountered in the token stream """
         c = Character(character)
         self.last_branch.append_child(c)
         self.last_leaf = c
 
     def start_group(self):
+        """ Called when the start of a group (``(``) is encountered """
         if isinstance(self.last_branch, CharacterClass):
             raise ValueError("Cannot have a group inside a character class")
         group = Alternative()
@@ -199,6 +215,12 @@ class TreeGenerator(object):
         self.last_branch = self.last_branch.parent.parent
 
     def builtin_class(self, cls):
+        """
+        Called when there is a \s type charater class in the token stream
+
+        This maps \s, \w and \d (including inverse versions) to a
+        :py:class:`CharacterClass`
+        """
         cc = {
             "s": CharacterClass(False, spaces),
             "S": CharacterClass(True, spaces),
@@ -238,6 +260,14 @@ def get_regex_tree(regex):
 
 class RegexFuzzer(object):
 
+    """
+    Allows a field with regex validation to have test data generated. This is
+    calculated with a graph not simply brute force.
+
+    This is a very thin wrapper around :py:class:`TreeGenerator` to make it
+    follow the sashimi field generator interface.
+    """
+
     @classmethod
     def can_fuzz(cls, field):
         if "regex" in field:
@@ -245,6 +275,9 @@ class RegexFuzzer(object):
         return False
 
     def fuzz(self, field, content_types):
+        """
+        Returns a random string that satisfies the ``regex`` in field
+        """
         return get_regex_tree(field['regex']).random()
 
 registry.register(RegexFuzzer)
