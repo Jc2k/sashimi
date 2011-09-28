@@ -1,4 +1,4 @@
-Integration Sashimi
+Integrating Sashimi
 ===================
 
 Adding to test suite
