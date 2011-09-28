@@ -12,6 +12,7 @@ Contents:
 .. toctree::
    :maxdepth: 2
 
+   walkthrough
    integration
    code/index
    hacking
