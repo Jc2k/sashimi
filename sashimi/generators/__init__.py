@@ -1,6 +1,6 @@
 
 """
-The :py:module:`sashimi.generators` module provides classes that
+The ``sashimi.generators`` module provides classes that
 can generate test content for standard content types.
 
 These objects implement a ``can_fuzz`` function so we can determine
