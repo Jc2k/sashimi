@@ -1,8 +1,11 @@
 Sashimi
 =======
 
-Sashimi is a Zope and Plone fuzzing toolkit aimed at increasing the number
-of code paths tested with minimum effort.
+Sashimi is an automatic and dynamic test case for finding and breaking untested
+code paths in your application. It uses fuzzing techniques combined with
+knowledge of how content types fit together in order to build a test site
+with random content and then spiders it to find broken views.
+
 
 Contents:
 
